@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catatan Suara</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(40, 40, 40, 0.95);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        .voice-section {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: rgba(50, 50, 50, 0.5);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .instruction {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .mic-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #ffffff 0%, #d0d0d0 100%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(255, 255, 255, 0.3);
+        }
+
+        .mic-button:active {
+            transform: scale(0.95);
+        }
+
+        .mic-button.recording {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 8px 24px rgba(255, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 40px rgba(255, 68, 68, 0.8);
+            }
+        }
+
+        .mic-icon {
+            font-size: 32px;
+        }
+
+        .status {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #999;
+            min-height: 20px;
+        }
+
+        .status.recording {
+            color: #ff6666;
+            font-weight: 500;
+        }
+
+        .notes-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notes-count {
+            font-size: 13px;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .notes-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notes-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .notes-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .note-item {
+            background: rgba(60, 60, 60, 0.6);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            animation: slideIn 0.4s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .note-item:hover {
+            background: rgba(70, 70, 70, 0.7);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .note-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #ff6666;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            opacity: 0.7;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 102, 102, 0.1);
+            opacity: 1;
+        }
+
+        .note-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            word-wrap: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        @media (max-aspect-ratio: 9/16) {
+            .container {
+                max-width: 100%;
+                padding: 24px 20px;
+            }
+
+            .notes-list {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mada</h1>
+        <p class="subtitle">FLOW</p>
+
+        <div class="voice-section">
+            
+            <button class="mic-button" id="micButton">
+                <span class="mic-icon"></span>
+            </button>
+            <p class="status" id="status"></p>
+        </div>
+
+        <div class="notes-header">
+            <span>Catatan Saya</span>
+            <span class="notes-count" id="notesCount">0 catatan</span>
+        </div>
+
+        <div class="notes-list" id="notesList">
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p>Belum ada catatan.<br>Mulai rekam suara Anda!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const micButton = document.getElementById('micButton');
+        const status = document.getElementById('status');
+        const notesList = document.getElementById('notesList');
+        const notesCount = document.getElementById('notesCount');
+
+        let recognition;
+        let isRecording = false;
+        let notes = [];
+
+        // Cek dukungan browser untuk Web Speech API
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'id-ID';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                micButton.classList.add('recording');
+                status.textContent = 'Sedang merekam... Silakan bicara';
+                status.classList.add('recording');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                addNote(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Error:', event.error);
+                status.textContent = 'Terjadi kesalahan. Coba lagi.';
+                status.classList.remove('recording');
+                micButton.classList.remove('recording');
+                isRecording = false;
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                micButton.classList.remove('recording');
+                status.textContent = '';
+                status.classList.remove('recording');
+            };
+        } else {
+            status.textContent = 'Browser tidak mendukung Speech Recognition';
+            micButton.disabled = true;
+        }
+
+        micButton.addEventListener('click', () => {
+            if (!recognition) return;
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        function addNote(text) {
+            const note = {
+                id: Date.now(),
+                text: text,
+                timestamp: new Date()
+            };
+
+            notes.unshift(note);
+            saveNotes();
+            renderNotes();
+        }
+
+        function deleteNote(id) {
+            notes = notes.filter(note => note.id !== id);
+            saveNotes();
+            renderNotes();
+        }
+
+        function formatDate(date) {
+            const now = new Date();
+            const noteDate = new Date(date);
+            const diffMs = now - noteDate;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Baru saja';
+            if (diffMins < 60) return `${diffMins} menit lalu`;
+            if (diffHours < 24) return `${diffHours} jam lalu`;
+            if (diffDays < 7) return `${diffDays} hari lalu`;
+
+            const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return noteDate.toLocaleDateString('id-ID', options);
+        }
+
+        function renderNotes() {
+            notesCount.textContent = `${notes.length} catatan`;
+
+            if (notes.length === 0) {
+                notesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p>Belum ada catatan.<br>Mulai rekam suara Anda!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            notesList.innerHTML = notes.map(note => `
+                <div class="note-item">
+                    <div class="note-header">
+                        <span class="note-time">${formatDate(note.timestamp)}</span>
+                        <button class="delete-btn" onclick="deleteNote(${note.id})">×</button>
+                    </div>
+                    <div class="note-text">${note.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function saveNotes() {
+            try {
+                localStorage.setItem('voiceNotes', JSON.stringify(notes));
+            } catch (e) {
+                console.log('LocalStorage tidak tersedia');
+            }
+        }
+
+        function loadNotes() {
+            try {
+                const saved = localStorage.getItem('voiceNotes');
+                if (saved) {
+                    notes = JSON.parse(saved);
+                    renderNotes();
+                }
+            } catch (e) {
+                console.log('Gagal memuat catatan');
+            }
+        }
+
+        // Load catatan saat halaman dimuat
+        loadNotes();
+    </script>
+</body>
+</html>
